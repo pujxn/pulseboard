@@ -1,30 +1,91 @@
-export type InstrumentId = 'BTC/USD' | 'ETH/USD' | 'AAPL' | 'TSLA' | 'EUR/USD' | 'GOLD'
+export type League = 'NBA' | 'NFL'
+export type GameState = 'live' | 'final' | 'scheduled'
 
-export type TradeStatus = 'pending' | 'confirmed' | 'rejected'
-export type TradeDirection = 'buy' | 'sell'
+// ── NBA ──────────────────────────────────────────────────────────────────────
 
-export interface PriceTick {
-  price: number
-  timestamp: number
+export interface NbaTeam {
+  id: number
+  abbreviation: string
+  city: string
+  conference: string
+  division: string
+  full_name: string
+  name: string
 }
 
-export interface Instrument {
-  id: InstrumentId
-  price: number
-  prevPrice: number
-  changePercent: number
-  history: PriceTick[]
-  bid: number
-  ask: number
-  volume: number
+export interface NbaGame {
+  id: number
+  date: string
+  home_team_score: number
+  visitor_team_score: number
+  season: number
+  period: number
+  status: string
+  time: string
+  postseason: boolean
+  home_team: NbaTeam
+  visitor_team: NbaTeam
 }
 
-export interface Trade {
-  id: string
-  instrument: InstrumentId
-  direction: TradeDirection
-  quantity: number
-  price: number
-  timestamp: number
-  status: TradeStatus
+export interface NbaStanding {
+  team: NbaTeam
+  conference: string
+  division: string
+  wins: number
+  losses: number
+  conference_rank: number
+  division_rank: number
+}
+
+// ── NFL ──────────────────────────────────────────────────────────────────────
+
+export interface NflTeam {
+  id: number
+  abbreviation: string
+  city: string
+  conference: string
+  division: string
+  full_name: string
+  name: string
+}
+
+export interface NflGame {
+  id: number
+  date: string
+  home_team: NflTeam
+  visitor_team: NflTeam
+  home_team_score: number | null
+  visitor_team_score: number | null
+  status: string
+  period: number | null
+  time_remaining: string | null
+  week: number
+  season: number
+  postseason: boolean
+}
+
+export interface NflStanding {
+  team: NflTeam
+  conference: string
+  division: string
+  wins: number
+  losses: number
+  ties: number
+  conference_rank: number
+  division_rank: number
+  win_percentage: string
+}
+
+// ── Normalized (used by GameCard) ─────────────────────────────────────────────
+
+export interface NormalizedGame {
+  id: number
+  league: League
+  homeTeam: { abbreviation: string; fullName: string }
+  visitorTeam: { abbreviation: string; fullName: string }
+  homeScore: number | null
+  visitorScore: number | null
+  gameState: GameState
+  statusLabel: string   // "Q4 2:35", "Halftime", "FINAL", "7:30 PM ET"
+  postseason: boolean
 }

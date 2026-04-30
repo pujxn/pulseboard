@@ -6,34 +6,23 @@
     margin: 0;
     padding: 0;
   }
-
   body {
     background-color: #0a0a0f;
     color: #e2e8f0;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
-
   #root {
     width: 100%;
     min-height: 100svh;
   }
 }
 
-@keyframes price-flash-green {
-  0%   { color: #00ff6a; }
-  100% { color: inherit; }
+@keyframes score-flash {
+  0%   { opacity: 1; filter: brightness(2); }
+  100% { opacity: 1; filter: brightness(1); }
 }
 
-@keyframes price-flash-red {
-  0%   { color: #ff6b8a; }
-  100% { color: inherit; }
-}
-
-.price-flash-up {
-  animation: price-flash-green 1.2s ease-out;
-}
-
-.price-flash-down {
-  animation: price-flash-red 1.2s ease-out;
+.score-flash {
+  animation: score-flash 1.2s ease-out;
 }

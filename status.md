@@ -1,46 +1,41 @@
 # PulseBoard — Build Status
 
-## Phase 1: Core Infrastructure + Instrument Cards ✅ DONE
+## Phase 1: Live Scores + Standings ✅ DONE
 
-### Files created
+### Files
 | File | Purpose |
 |------|---------|
-| `src/types.ts` | Shared types: InstrumentId, Instrument, Trade, PriceTick |
-| `src/store/marketStore.ts` | Zustand store — prices, history (60 ticks), bid/ask, trades |
-| `src/simulator/marketSimulator.ts` | setInterval-free random-walk price engine with fat-tail shocks |
-| `src/lib/utils.ts` | formatPrice, formatChange, cn (tailwind-merge) |
-| `src/components/Sparkline.tsx` | Recharts LineChart, memo-wrapped, axis-free |
-| `src/components/InstrumentCard.tsx` | Card with price, %change, sparkline, bid/ask, flash animation |
-| `src/components/InstrumentGrid.tsx` | 2→3 col responsive grid of 6 cards |
-| `src/components/Header.tsx` | PulseBoard title + live indicator + UTC clock |
-| `src/App.tsx` | Root — mounts simulator hook, holds selectedId state |
+| `src/types.ts` | All types: NbaGame, NflGame, NbaStanding, NflStanding, NormalizedGame |
+| `src/api/client.ts` | Base `apiFetch` — Authorization header, error handling |
+| `src/api/nba.ts` | `useNbaGames`, `useNbaStandings` TanStack Query hooks |
+| `src/api/nfl.ts` | `useNflGames`, `useNflStandings` TanStack Query hooks |
+| `src/store/uiStore.ts` | Zustand — selected league (NBA/NFL) |
+| `src/lib/utils.ts` | cn, todayDate, season helpers, getGameState, normalizeNbaGame/NflGame |
+| `src/lib/teamColors.ts` | Primary color map for all NBA + NFL teams |
+| `src/components/Header.tsx` | Title + league toggle buttons |
+| `src/components/StatusBadge.tsx` | LIVE (pulsing dot) / FINAL / SCHEDULED badge |
+| `src/components/GameCard.tsx` | Score card — team colors, score flash on update |
+| `src/components/SkeletonCards.tsx` | Loading skeleton for game grid |
+| `src/components/LiveScoresPanel.tsx` | Today's games — polls every 30s when live |
+| `src/components/StandingsTable.tsx` | Conference standings for NBA/NFL |
 
-### Architecture decisions
-- Simulator uses staggered recursive `setTimeout` (300–800ms) instead of a single `setInterval` so each instrument ticks at its own random cadence.
-- Each card subscribes only to its own instrument via `useInstrument(id)` selector — no whole-store re-renders.
-- History selector is separate (`useInstrumentHistory`) so the sparkline subscribes independently.
-- Flash animation is CSS-only (keyframe classes), toggled via a `useEffect` on price change.
-- `prevPrice` field on Instrument lets cards detect direction without storing extra ref state in the store.
-
----
-
-## Phase 2: Detail Panel + Trade Entry 🔜 NEXT
-
-Waiting for user sign-off on Phase 1 before building:
-- `DetailPanel.tsx` — expanded chart (60 ticks, with axes), volume sim, Framer Motion layout animation
-- `TradeForm.tsx` — Buy/Sell toggle, quantity input, Place Order button
-- Trade optimistic update → 1.5s confirm/reject (20% rejection)
-- Toast notification on submit/confirm/reject
-
-## Phase 3: Trade History Panel 🔜 QUEUED
-
-- Sidebar/bottom panel listing recent trades
-- AnimatePresence entry animations
-- Status badges: pending / confirmed / rejected
+### Architecture
+- **Polling**: `refetchInterval` is dynamic — 30s when live games exist, 60s otherwise
+- **Normalization**: Raw API shapes unified into `NormalizedGame` before rendering
+- **Animations**: Framer Motion for card entrance (staggered) and league switch (fade+slide); CSS `brightness` keyframe for score flash
+- **Data source**: `balldontlie.io` API, key from `VITE_BALLDONTLIE_API_KEY`
 
 ---
 
-## Known limitations / decisions to revisit
-- UTC clock in Header is static (rendered once at mount) — will drift. Can wire to `setInterval` later if desired.
-- No real WebSocket — all simulation is client-side via setTimeout.
-- Trade history capped at 200 entries in the store.
+## Phase 2: Game Detail + Search 🔜 NEXT (waiting for sign-off)
+
+- Click a game card → expand detail panel (Framer Motion layout animation)
+- NBA box score: top performers, points/assists/rebounds
+- Search input: find any team → recent games + record
+
+---
+
+## Known
+- NFL off-season (May 2026): today's games panel will show empty state; standings still load
+- NBA: May 2026 = playoffs — live games expected
+- UTC clock in Header is static at render time
