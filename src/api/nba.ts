@@ -10,7 +10,7 @@ export function useNbaGames(date: string) {
       apiFetch<ApiList<NbaGame>>('/games', { 'dates[]': date, per_page: '100' }),
     refetchInterval: (query) => {
       const games = query.state.data?.data ?? []
-      return games.some((g) => getGameState(g.status) === 'live') ? 30_000 : 60_000
+      return games.some((g) => getGameState(g.status) === 'live') ? 30_000 : false
     },
     staleTime: 20_000,
   })
@@ -21,6 +21,7 @@ export function useNbaStandings(season: number) {
     queryKey: ['nba', 'standings', season],
     queryFn: () =>
       apiFetch<ApiList<NbaStanding>>('/standings', { season: String(season) }),
-    staleTime: 5 * 60_000,
+    staleTime: 15 * 60_000,
+    refetchInterval: false,
   })
 }

@@ -7,8 +7,12 @@ import App from './App.tsx'
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 2,
-      refetchOnWindowFocus: true,
+      // Never retry rate-limit responses — it makes the problem worse
+      retry: (failureCount, error) => {
+        if ((error as Error).message.startsWith('API 429')) return false
+        return failureCount < 1
+      },
+      refetchOnWindowFocus: false,
     },
   },
 })
